@@ -47,15 +47,11 @@ function Get-WSLPaths {
 }
 
 function Get-AllWslPath {
-    $DockerArr=(ls $env:LOCALAPPDATA\Docker\*\*.vhdx -Recurse)
-    $SystemArr=(ls $env:LOCALAPPDATA\Packages\*\*.vhdx -Recurse)
-    $tmp=$SystemArr+$DockerArr
-
-    $arr=@()
-    $tmp.foreach({
-        $arr+=$_.FullName
-    })
-    $arr
+    $DockerFiles = Get-ChildItem $env:LOCALAPPDATA\Docker\*\*.vhdx -Recurse
+    $SystemFiles = Get-ChildItem $env:LOCALAPPDATA\Packages\*\*.vhdx -Recurse
+    
+    # Directly get FullName paths from both arrays
+    (@($DockerFiles) + @($SystemFiles)).FullName
 }
 Write-Host "Shutding down wsl..."
 wsl --shutdown 
