@@ -25,7 +25,7 @@ function Get-VirtualMachineInfo {
 }
 
 # Define default properties to show if no selection is made
-$DefaultPropsToShow = @("Name", "State", "CPUUsage", "MemoryAssigned", "Uptime")
+$DefaultPropsToShow = @("Name", "State", "CPUUsage", "MemoryAssigned", "Uptime", "IPAddresses")
 
 # get user selection for which props to show
 $SelectedProps = $PSBoundParameters['Get']
@@ -53,5 +53,6 @@ if ($IpAddresses) {
 
     return ($MachineIpAddresses | Format-Table -Property SwitchName, IPAddresses -AutoSize)
 }
-
-$VmList | Format-Table -Property $DefaultPropsToShow -AutoSize
+$MachineAdapters = $VmList.NetworkAdapters
+$DefaultVmInfo = $VmList | Add-Member -MemberType NoteProperty -Name "IPAddresses" -Value $MachineAdapters.IPAddresses -PassThru
+$DefaultVmInfo | Format-Table -Property $DefaultPropsToShow -AutoSize
