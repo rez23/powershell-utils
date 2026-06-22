@@ -53,6 +53,8 @@ if ($IpAddresses) {
 
     return ($MachineIpAddresses | Format-Table -Property SwitchName, IPAddresses -AutoSize)
 }
+
+# Get the network adapters and add IPAddresses property to the VM info
 $MachineAdapters = $VmList.NetworkAdapters
 $DefaultVmInfo = $VmList | Add-Member -MemberType NoteProperty -Name "IPAddresses" -Value $MachineAdapters.IPAddresses -PassThru
-$DefaultVmInfo | Format-Table -Property $DefaultPropsToShow -AutoSize
+return $DefaultVmInfo | Format-Table -Property $DefaultPropsToShow -AutoSize
