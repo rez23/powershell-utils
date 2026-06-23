@@ -45,16 +45,16 @@ if ($All) {
 
 if ($Interfaces) {
     $adapters = $VmList.NetworkAdapters | Select-Object -Property Name, SwitchName, MacAddress, Status, IPAddresses
-    return ($adapters | Format-Table -AutoSize)
+    return ($adapters | Select-Object -Property *)
 }
 
 if ($IpAddresses) {
     $MachineIpAddresses = $VmList.NetworkAdapters
 
-    return ($MachineIpAddresses | Format-Table -Property SwitchName, IPAddresses -AutoSize)
+    return ($MachineIpAddresses | Select-Object -Property VMName, SwitchName, IPAddresses)
 }
 
 # Get the network adapters and add IPAddresses property to the VM info
 $MachineAdapters = $VmList.NetworkAdapters
 $DefaultVmInfo = $VmList | Add-Member -MemberType NoteProperty -Name "IPAddresses" -Value $MachineAdapters.IPAddresses -PassThru
-return $DefaultVmInfo | Format-Table -Property $DefaultPropsToShow -AutoSize
+return $DefaultVmInfo | Select-Object -Property $DefaultPropsToShow 
