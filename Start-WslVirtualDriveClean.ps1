@@ -10,7 +10,7 @@ function Add-Log {
     
 }
 
-function Config-Log {    
+function Set-Logger {    
     #$timestamp = Get-Date -Format "yyyy-MM-dd_HH:mm"
 
     New-EventLog -Source "CleanWsl.ps1" -LogName "ShutdownWslVHDptimize"
