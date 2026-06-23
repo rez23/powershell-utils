@@ -1,4 +1,28 @@
-# prepare completion for selectable props
+<#
+.SYNOPSIS
+Get information about virtual machines.
+
+.DESCRIPTION
+Returns information about virtual machines, including their state, CPU usage, memory usage, uptime, and network interfaces.
+
+.PARAMETER Name
+Specify the name of the virtual machine to retrieve information for.
+
+.PARAMETER Interfaces
+Include network interface information in the results.
+
+.PARAMETER All
+Include all available information in the results.
+
+.PARAMETER IpAddresses
+Include IP address information in the results.
+
+.PARAMETER InterfacesNames
+Include network interface names in the results.
+
+.EXAMPLE
+./Get-VirtualMachineInfo.ps1 -Name "MyVM"
+#>
 [CmdletBinding()]
 param(
     [parameter(Mandatory = $false)]
@@ -40,7 +64,7 @@ $DefaultPropsToShow | Where-Object { $_ -notin $SelectedProps } | ForEach-Object
 
 
 if ($All) {
-    return $VmList
+    return $VmList | Select-Object -Property *
 }
 
 if ($Interfaces) {
@@ -51,10 +75,8 @@ if ($Interfaces) {
 if ($IpAddresses) {
     $MachineIpAddresses = $VmList.NetworkAdapters
 
-    return ($MachineIpAddresses | Select-Object -Property VMName, SwitchName, IPAddresses)
+    return ($MachineIpAddresses | Select-Object -Property VMName, SwitchName, IPAddresses )
 }
 
 # Get the network adapters and add IPAddresses property to the VM info
-$MachineAdapters = $VmList.NetworkAdapters
-$DefaultVmInfo = $VmList | Add-Member -MemberType NoteProperty -Name "IPAddresses" -Value $MachineAdapters.IPAddresses -PassThru
-return $DefaultVmInfo | Select-Object -Property $DefaultPropsToShow 
+return $vmList | ForEach-Object { $_ | Select-Object -Property name, state, cpuusage, memoryassigned, uptime, @{Name="IPv4"; Expression={Get-NetIPAddress -InterfaceAlias $_.InterfaceAlias | Where-Object { $_ -match '^\d{1,3}(\.\d{1,3}){3}$'}} }}
