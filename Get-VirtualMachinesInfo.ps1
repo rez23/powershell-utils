@@ -48,6 +48,30 @@ function Get-VirtualMachineInfo {
     }
 }
 
+function Get-IpFromNetworkAdapters {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline = $true)][object[]]$InputArray,
+        [Parameter(Mandatory = $false)][switch]$IPv4
+    )
+    
+    $InputArray = $InputArray.IPAddresses -split "\n"
+    $out = @()
+    for ($i = 0; $i -lt $InputArray.Count; $i += 1) {
+        if ($i % 2 -eq 0) {
+            $a = $InputArray[$i]
+            $b = $InputArray[$i + 1]
+            if ($IPv4) {
+                $out += $a
+            } else {
+                $out += "{ipv4: $a, ipv6: $b}"
+            }
+        }
+    }
+
+    return $out
+}
+
 # Define default properties to show if no selection is made
 $DefaultPropsToShow = @("Name", "State", "CPUUsage", "MemoryAssigned", "Uptime", "IPAddresses")
 
@@ -79,4 +103,4 @@ if ($IpAddresses) {
 }
 
 # Get the network adapters and add IPAddresses property to the VM info
-return $vmList | ForEach-Object { $_ | Select-Object -Property name, state, cpuusage, memoryassigned, uptime, @{Name="IPv4"; Expression={Get-NetIPAddress -InterfaceAlias $_.InterfaceAlias | Where-Object { $_ -match '^\d{1,3}(\.\d{1,3}){3}$'}} }}
+return $vmList | Select-Object -Property name, state, cpuusage, memoryassigned, uptime, @{Name = "IpV4"; Expression = { $VmList.NetworkAdapters.IPAddresses -split "\n"| ForEach-Object -Begin {$i=0} -Process { if (($i%2) -eq 0) {$_} $i++} } }
